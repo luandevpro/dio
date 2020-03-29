@@ -10,6 +10,8 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  Future<List<Post>> getPostsState;
+
   listBuilder(List<Post> post) {
     return ListView.separated(
       itemCount: post.length,
@@ -18,11 +20,33 @@ class _HomeViewState extends State<HomeView> {
           leading: Text("$index"),
           title: Text("${post[index].title}"),
           subtitle: Text("@.${post[index].user.displayName}"),
-          trailing: Icon(Icons.navigate_next),
+          trailing: FlatButton(
+            onPressed: () {
+              ApiProvider().deletePost("${post[index].id}").then((data) {
+                print("$data");
+                refreshGetPost();
+              });
+            },
+            child: Icon(
+              Icons.delete,
+            ),
+          ),
         );
       },
       separatorBuilder: (ctx, index) => Divider(),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    refreshGetPost();
+  }
+
+  refreshGetPost() {
+    this.setState(() {
+      getPostsState = ApiProvider().getPosts();
+    });
   }
 
   @override
@@ -40,7 +64,7 @@ class _HomeViewState extends State<HomeView> {
       ),
       body: Center(
         child: FutureBuilder(
-          future: ApiProvider().getPosts(),
+          future: getPostsState,
           builder: (context, snapshot) {
             switch (snapshot.connectionState) {
               case ConnectionState.none:

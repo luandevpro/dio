@@ -28,4 +28,14 @@ class ApiProvider {
       throw Exception("Not can create post");
     }
   }
+
+  Future<Post> deletePost(String id) async {
+    Response deletePost = await dio.get("http://localhost:8080/post/${id}");
+
+    if (deletePost.statusCode == 200) {
+      return Post.fromJson(deletePost.data);
+    } else {
+      throw Exception("Error delete post");
+    }
+  }
 }
